@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Tra cứu tài khoản thi TN THPT</title>
+    <meta
+      name="description"
+      content="Tra cứu tài khoản và mã đăng nhập thi tốt nghiệp THPT."
+    >
+    <link rel="preload" href="assets/identity.png" as="image">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="lookup-panel" aria-labelledby="page-title">
+        <div class="intro">
+          <img
+            class="identity-mark"
+            src="assets/identity.png"
+            width="144"
+            height="144"
+            alt=""
+            aria-hidden="true"
+          >
+          <div>
+            <p class="eyebrow">Kỳ thi tốt nghiệp THPT</p>
+            <h1 id="page-title">Tra cứu tài khoản thí sinh</h1>
+            <p class="lead">
+              Nhập đúng thông tin đã được cung cấp để nhận tài khoản và mã đăng nhập.
+            </p>
+          </div>
+        </div>
+
+        <form id="lookup-form" class="lookup-form" novalidate>
+          <div class="field-group">
+            <label for="account">Số ĐDCN</label>
+            <input
+              id="account"
+              name="account"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Ví dụ: 095208001234"
+              required
+            >
+          </div>
+
+          <div class="field-group">
+            <label for="dob">Ngày sinh</label>
+            <input
+              id="dob"
+              name="dob"
+              type="text"
+              inputmode="numeric"
+              autocomplete="bday"
+              placeholder="dd/mm/yyyy"
+              required
+            >
+          </div>
+
+          <div class="field-group">
+            <label for="access-code">Mã truy cập</label>
+            <input
+              id="access-code"
+              name="accessCode"
+              type="password"
+              autocomplete="off"
+              placeholder="Mã do nhà trường cung cấp"
+              required
+            >
+          </div>
+
+          <button id="submit-button" class="primary-action" type="submit">
+            Tra cứu
+          </button>
+
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <section id="result" class="result-panel" hidden aria-labelledby="result-title">
+          <h2 id="result-title">Thông tin đăng nhập</h2>
+          <dl class="result-grid">
+            <div>
+              <dt>Họ tên</dt>
+              <dd id="result-name"></dd>
+            </div>
+            <div>
+              <dt>Lớp</dt>
+              <dd id="result-class"></dd>
+            </div>
+            <div>
+              <dt>Tên tài khoản / Số ĐDCN</dt>
+              <dd>
+                <span id="result-account"></span>
+                <button class="copy-action" type="button" data-copy-target="result-account">
+                  Sao chép
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>Mã đăng nhập</dt>
+              <dd>
+                <span id="result-code"></span>
+                <button class="copy-action" type="button" data-copy-target="result-code">
+                  Sao chép
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <p class="notice">
+          Không chia sẻ mã truy cập hoặc mã đăng nhập cho người khác.
+        </p>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+local-access-code.txt
+*.xls
+*.xlsx
+~$*
+.DS_Store
+Thumbs.db
+node_modules/
