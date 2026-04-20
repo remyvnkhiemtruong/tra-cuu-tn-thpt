@@ -191,11 +191,15 @@ function base64UrlToBytes(value) {
 }
 
 function showResult(profile) {
-  resultName.textContent = profile.name;
+  resultName.textContent = formatStudentName(profile.name);
   resultClass.textContent = profile.className;
   resultAccount.textContent = profile.account;
   resultCode.textContent = profile.loginCode;
   resultPanel.hidden = false;
+}
+
+function formatStudentName(value) {
+  return String(value ?? "").normalize("NFC").toLocaleUpperCase("vi-VN");
 }
 
 function setStatus(message, state) {

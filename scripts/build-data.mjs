@@ -88,9 +88,15 @@ console.log(
 
 function extractWorkbook(source) {
   const scriptPath = path.join(__dirname, "extract-xls.ps1");
+  const command = [
+    "$ErrorActionPreference = 'Stop'",
+    "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)",
+    "$OutputEncoding = [System.Text.UTF8Encoding]::new($false)",
+    `& ${psQuote(scriptPath)} -Source ${psQuote(source)}`,
+  ].join("; ");
   const result = spawnSync(
     "powershell.exe",
-    ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", scriptPath, "-Source", source],
+    ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
     {
       cwd: rootDir,
       encoding: "utf8",
@@ -106,6 +112,10 @@ function extractWorkbook(source) {
   return JSON.parse(result.stdout);
 }
 
+function psQuote(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
 function normalizeRecord(record, sourceRow) {
   const account = String(record.account ?? "").trim().replace(/\s+/g, "");
   const dob = normalizeDob(record.dob);
@@ -113,12 +123,23 @@ function normalizeRecord(record, sourceRow) {
   const name = String(record.name ?? "").trim();
   const className = String(record.className ?? "").trim();
 
+  assertNoReplacement(account, "account", sourceRow);
+  assertNoReplacement(loginCode, "login code", sourceRow);
+  assertNoReplacement(name, "name", sourceRow);
+  assertNoReplacement(className, "class", sourceRow);
+
   if (!account) throw new Error(`Missing account at source row ${sourceRow}.`);
   if (!dob) throw new Error(`Missing or invalid date of birth at source row ${sourceRow}.`);
   if (!loginCode) throw new Error(`Missing login code at source row ${sourceRow}.`);
   if (!name) throw new Error(`Missing name at source row ${sourceRow}.`);
 
   return { account, dob, loginCode, name, className, sourceRow };
+}
+
+function assertNoReplacement(value, field, sourceRow) {
+  if (String(value).includes("\uFFFD")) {
+    throw new Error(`Invalid replacement character in ${field} at source row ${sourceRow}.`);
+  }
 }
 
 function normalizeDob(value) {

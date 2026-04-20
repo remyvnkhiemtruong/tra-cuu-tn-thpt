@@ -29,6 +29,9 @@ for (const record of rows) {
   }
 
   const profile = decryptRecord(encrypted, record.account, record.dob);
+  if (profile.name.includes("\uFFFD") || record.name.includes("\uFFFD")) {
+    problems.push(`Replacement character found in name at source row ${record.sourceRow}.`);
+  }
   if (
     profile.name !== record.name ||
     profile.className !== record.className ||
@@ -82,9 +85,15 @@ console.log(
 
 function extractWorkbook(source) {
   const scriptPath = path.join(__dirname, "extract-xls.ps1");
+  const command = [
+    "$ErrorActionPreference = 'Stop'",
+    "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)",
+    "$OutputEncoding = [System.Text.UTF8Encoding]::new($false)",
+    `& ${psQuote(scriptPath)} -Source ${psQuote(source)}`,
+  ].join("; ");
   const result = spawnSync(
     "powershell.exe",
-    ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", scriptPath, "-Source", source],
+    ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
     {
       cwd: rootDir,
       encoding: "utf8",
@@ -98,6 +107,10 @@ function extractWorkbook(source) {
   }
 
   return JSON.parse(result.stdout);
+}
+
+function psQuote(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
 }
 
 async function loadDataset(filePath) {

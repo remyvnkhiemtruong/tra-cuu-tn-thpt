@@ -2,6 +2,8 @@
 
 Website tĩnh dùng cho GitHub Pages để tra cứu tài khoản và mã đăng nhập thi tốt nghiệp THPT của Trường THPT Võ Văn Kiệt.
 
+Trang có kèm liên kết đăng nhập chính thức: https://thisinh.thitotnghiepthpt.edu.vn/
+
 ## Cấu trúc
 
 - `index.html`, `styles.css`, `app.js`: giao diện và logic tra cứu.

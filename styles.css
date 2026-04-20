@@ -38,24 +38,22 @@ input {
 }
 
 .page-shell {
-  width: min(100% - 28px, 900px);
+  width: min(100% - 28px, 980px);
   min-height: 100vh;
   margin: 0 auto;
   display: grid;
   place-items: center;
-  padding: 22px 0;
+  padding: 18px 0;
 }
 
 .lookup-panel {
   width: 100%;
-  max-height: calc(100vh - 44px);
-  overflow: auto;
   background: var(--panel);
   border: 1px solid var(--line);
   border-top: 6px solid var(--brand);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  padding: 28px;
+  padding: 24px;
 }
 
 .site-header {
@@ -64,7 +62,7 @@ input {
   gap: 20px;
   align-items: center;
   margin-bottom: 22px;
-  padding-bottom: 20px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -111,7 +109,7 @@ h1 {
 
 .lookup-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto minmax(190px, auto);
   gap: 14px;
   align-items: end;
 }
@@ -144,6 +142,8 @@ input:focus {
 }
 
 .primary-action,
+.login-action,
+.result-login,
 .copy-action {
   border-radius: 8px;
   cursor: pointer;
@@ -167,6 +167,27 @@ input:focus {
 .primary-action:disabled {
   cursor: wait;
   opacity: 0.75;
+}
+
+.login-action,
+.result-login {
+  min-height: 48px;
+  border: 1px solid var(--brand);
+  background: #ffffff;
+  color: var(--brand-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 14px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.login-action:hover,
+.login-action:focus-visible,
+.result-login:hover,
+.result-login:focus-visible {
+  background: var(--brand-soft);
 }
 
 .status {
@@ -252,6 +273,11 @@ dd {
   background: #edf9fe;
 }
 
+.result-login {
+  margin-top: 14px;
+  width: 100%;
+}
+
 .site-footer {
   margin-top: 18px;
   padding-top: 14px;
@@ -314,7 +340,8 @@ dd {
     grid-template-columns: 1fr;
   }
 
-  .primary-action {
+  .primary-action,
+  .login-action {
     width: 100%;
   }
 
