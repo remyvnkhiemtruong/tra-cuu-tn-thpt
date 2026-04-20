@@ -6,7 +6,7 @@ Website tĩnh dùng cho GitHub Pages để tra cứu tài khoản và mã đăng
 
 - `index.html`, `styles.css`, `app.js`: giao diện và logic tra cứu.
 - `assets/logo-vvk.png`: logo tối ưu cho web.
-- `data/records.json`: dữ liệu đã mã hóa từng hồ sơ.
+- `data/records.js`: dữ liệu đã mã hóa từng hồ sơ, nạp được cả khi mở bằng `file://`.
 - `scripts/build-data.mjs`: build dữ liệu mã hóa từ file Excel nguồn.
 - `scripts/extract-xls.ps1`: đọc file `.xls` bằng Excel COM ở chế độ chỉ đọc.
 - `scripts/verify-data.mjs`: đối chiếu dữ liệu mã hóa với Excel nguồn.

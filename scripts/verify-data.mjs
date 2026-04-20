@@ -2,15 +2,16 @@ import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const defaultSource = "C:\\Users\\Administrator\\Downloads\\Danh sach tai khoan thi sinh.xls";
 const sourcePath = path.resolve(process.argv[2] ?? defaultSource);
-const dataPath = path.join(rootDir, "data", "records.json");
+const dataPath = path.join(rootDir, "data", "records.js");
 
-const dataset = await fs.readFile(dataPath, "utf8").then(JSON.parse);
+const dataset = await loadDataset(dataPath);
 const raw = extractWorkbook(sourcePath);
 const rows = raw.records.map((record, index) => normalizeRecord(record, index + 7));
 const problems = [];
@@ -97,6 +98,18 @@ function extractWorkbook(source) {
   }
 
   return JSON.parse(result.stdout);
+}
+
+async function loadDataset(filePath) {
+  const code = await fs.readFile(filePath, "utf8");
+  const sandbox = { window: {} };
+  vm.runInNewContext(code, sandbox, { filename: filePath });
+
+  if (!sandbox.window.TN_THPT_LOOKUP_DATA) {
+    throw new Error("Cannot read window.TN_THPT_LOOKUP_DATA from records.js.");
+  }
+
+  return sandbox.window.TN_THPT_LOOKUP_DATA;
 }
 
 function normalizeRecord(record, sourceRow) {

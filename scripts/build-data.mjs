@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const defaultSource = "C:\\Users\\Administrator\\Downloads\\Danh sach tai khoan thi sinh.xls";
 const sourcePath = path.resolve(process.argv[2] ?? defaultSource);
-const outputPath = path.join(rootDir, "data", "records.json");
+const outputPath = path.join(rootDir, "data", "records.js");
 
 const raw = extractWorkbook(sourcePath);
 const rows = raw.records.map((record, index) => normalizeRecord(record, index + 7));
@@ -65,7 +65,15 @@ const output = {
 };
 
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
-await fs.writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+await fs.writeFile(
+  outputPath,
+  [
+    "window.TN_THPT_LOOKUP_DATA = ",
+    JSON.stringify(output, null, 2),
+    ";\n",
+  ].join(""),
+  "utf8"
+);
 
 console.log(
   JSON.stringify(
