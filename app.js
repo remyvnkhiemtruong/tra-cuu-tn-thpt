@@ -50,7 +50,7 @@ async function runLookup() {
     const dob = normalizeDob(dobInput.value);
 
     if (!account || !dob) {
-      throw new UserFacingError("Vui lòng nhập đầy đủ Số ĐDCN và ngày sinh.");
+      throw new UserFacingError("Vui lòng nhập Số ĐDCN và chọn ngày sinh.");
     }
 
     const dataset = getDataset();
@@ -78,7 +78,7 @@ function seedFormFromQuery() {
   const dob = params.get("dob");
 
   if (account) accountInput.value = account;
-  if (dob) dobInput.value = dob;
+  if (dob) dobInput.value = normalizeDob(dob) || dob;
 
   if (account && dob) {
     window.setTimeout(() => {
