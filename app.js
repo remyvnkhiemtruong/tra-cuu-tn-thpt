@@ -1,6 +1,6 @@
 const DATA_URL = "data/records.json";
 const NOT_FOUND_MESSAGE =
-  "Không tìm thấy thông tin phù hợp. Vui lòng kiểm tra lại Số ĐDCN, ngày sinh và mã truy cập.";
+  "Không tìm thấy thông tin phù hợp. Vui lòng kiểm tra lại Số ĐDCN và ngày sinh.";
 
 const form = document.querySelector("#lookup-form");
 const submitButton = document.querySelector("#submit-button");
@@ -24,23 +24,20 @@ form.addEventListener("submit", async (event) => {
     const formData = new FormData(form);
     const account = normalizeAccount(formData.get("account"));
     const dob = normalizeDob(formData.get("dob"));
-    const accessCode = normalizeAccessCode(formData.get("accessCode"));
 
-    if (!account || !dob || !accessCode) {
-      throw new UserFacingError(
-        "Vui lòng nhập đầy đủ Số ĐDCN, ngày sinh và mã truy cập."
-      );
+    if (!account || !dob) {
+      throw new UserFacingError("Vui lòng nhập đầy đủ Số ĐDCN và ngày sinh.");
     }
 
     const dataset = await loadData();
-    const lookupHash = await sha256Hex(dataset.globalSalt + account + dob + accessCode);
+    const lookupHash = await sha256Hex(dataset.globalSalt + account + dob);
     const encryptedRecord = dataset.records[lookupHash];
 
     if (!encryptedRecord) {
       throw new UserFacingError(NOT_FOUND_MESSAGE);
     }
 
-    const profile = await decryptRecord(encryptedRecord, account, dob, accessCode);
+    const profile = await decryptRecord(encryptedRecord, account, dob);
     showResult(profile);
     setStatus("Tra cứu thành công.", "success");
   } catch (error) {
@@ -82,13 +79,13 @@ function loadData() {
   return dataPromise;
 }
 
-async function decryptRecord(record, account, dob, accessCode) {
+async function decryptRecord(record, account, dob) {
   const salt = base64UrlToBytes(record.salt);
   const iv = base64UrlToBytes(record.iv);
   const ciphertext = base64UrlToBytes(record.ciphertext);
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(account + dob + accessCode),
+    encoder.encode(account + dob),
     "PBKDF2",
     false,
     ["deriveKey"]
@@ -118,10 +115,6 @@ async function sha256Hex(value) {
 
 function normalizeAccount(value) {
   return String(value ?? "").trim().replace(/\s+/g, "");
-}
-
-function normalizeAccessCode(value) {
-  return String(value ?? "").normalize("NFC").trim();
 }
 
 function normalizeDob(value) {

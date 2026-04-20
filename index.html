@@ -7,31 +7,28 @@
     <title>Tra cứu tài khoản thi TN THPT</title>
     <meta
       name="description"
-      content="Tra cứu tài khoản và mã đăng nhập thi tốt nghiệp THPT."
+      content="Tra cứu tài khoản và mã đăng nhập thi tốt nghiệp THPT Trường THPT Võ Văn Kiệt."
     >
-    <link rel="preload" href="assets/identity.png" as="image">
+    <link rel="preload" href="assets/logo-vvk.png" as="image">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="page-shell">
       <section class="lookup-panel" aria-labelledby="page-title">
-        <div class="intro">
+        <header class="site-header">
           <img
-            class="identity-mark"
-            src="assets/identity.png"
-            width="144"
-            height="144"
-            alt=""
-            aria-hidden="true"
+            class="school-logo"
+            src="assets/logo-vvk.png"
+            width="128"
+            height="128"
+            alt="Logo Trường THPT Võ Văn Kiệt"
           >
-          <div>
-            <p class="eyebrow">Kỳ thi tốt nghiệp THPT</p>
-            <h1 id="page-title">Tra cứu tài khoản thí sinh</h1>
-            <p class="lead">
-              Nhập đúng thông tin đã được cung cấp để nhận tài khoản và mã đăng nhập.
-            </p>
+          <div class="school-heading">
+            <p class="manager">Đơn vị quản lý: Sở GDĐT Tỉnh Cà Mau</p>
+            <p class="school-name">Trường THPT Võ Văn Kiệt</p>
+            <h1 id="page-title">Tra cứu tài khoản thi TN THPT</h1>
           </div>
-        </div>
+        </header>
 
         <form id="lookup-form" class="lookup-form" novalidate>
           <div class="field-group">
@@ -56,18 +53,6 @@
               inputmode="numeric"
               autocomplete="bday"
               placeholder="dd/mm/yyyy"
-              required
-            >
-          </div>
-
-          <div class="field-group">
-            <label for="access-code">Mã truy cập</label>
-            <input
-              id="access-code"
-              name="accessCode"
-              type="password"
-              autocomplete="off"
-              placeholder="Mã do nhà trường cung cấp"
               required
             >
           </div>
@@ -111,9 +96,9 @@
           </dl>
         </section>
 
-        <p class="notice">
-          Không chia sẻ mã truy cập hoặc mã đăng nhập cho người khác.
-        </p>
+        <footer class="site-footer">
+          Copyright 2026 by Trương Minh Khiêm
+        </footer>
       </section>
     </main>
 

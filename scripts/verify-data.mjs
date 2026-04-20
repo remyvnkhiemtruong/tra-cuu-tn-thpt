@@ -9,22 +9,8 @@ const rootDir = path.resolve(__dirname, "..");
 const defaultSource = "C:\\Users\\Administrator\\Downloads\\Danh sach tai khoan thi sinh.xls";
 const sourcePath = path.resolve(process.argv[2] ?? defaultSource);
 const dataPath = path.join(rootDir, "data", "records.json");
-const localCodePath = path.join(rootDir, "local-access-code.txt");
 
-const [dataset, accessCodeText] = await Promise.all([
-  fs.readFile(dataPath, "utf8").then(JSON.parse),
-  fs.readFile(localCodePath, "utf8"),
-]);
-
-const accessCode = accessCodeText
-  .split(/\r?\n/)
-  .map((line) => line.trim())
-  .find((line) => /^[A-Z2-9]{10,12}$/.test(line));
-
-if (!accessCode) {
-  throw new Error("Cannot read local access code.");
-}
-
+const dataset = await fs.readFile(dataPath, "utf8").then(JSON.parse);
 const raw = extractWorkbook(sourcePath);
 const rows = raw.records.map((record, index) => normalizeRecord(record, index + 7));
 const problems = [];
@@ -32,7 +18,7 @@ const problems = [];
 for (const record of rows) {
   const lookupHash = crypto
     .createHash("sha256")
-    .update(dataset.globalSalt + record.account + record.dob + accessCode, "utf8")
+    .update(dataset.globalSalt + record.account + record.dob, "utf8")
     .digest("hex");
   const encrypted = dataset.records[lookupHash];
 
@@ -41,7 +27,7 @@ for (const record of rows) {
     continue;
   }
 
-  const profile = decryptRecord(encrypted, record.account, record.dob, accessCode);
+  const profile = decryptRecord(encrypted, record.account, record.dob);
   if (
     profile.name !== record.name ||
     profile.className !== record.className ||
@@ -53,15 +39,14 @@ for (const record of rows) {
 }
 
 const negativeChecks = [
-  ["wrong-account", mutate(rows[0].account), rows[0].dob, accessCode],
-  ["wrong-dob", rows[1].account, "1999-01-01", accessCode],
-  ["wrong-code", rows[2].account, rows[2].dob, `${accessCode}X`],
+  ["wrong-account", mutate(rows[0].account), rows[0].dob],
+  ["wrong-dob", rows[1].account, "1999-01-01"],
 ];
 
-for (const [label, account, dob, code] of negativeChecks) {
+for (const [label, account, dob] of negativeChecks) {
   const lookupHash = crypto
     .createHash("sha256")
-    .update(dataset.globalSalt + account + dob + code, "utf8")
+    .update(dataset.globalSalt + account + dob, "utf8")
     .digest("hex");
 
   if (dataset.records[lookupHash]) {
@@ -124,13 +109,13 @@ function normalizeRecord(record, sourceRow) {
   return { account, dob, loginCode, name, className, sourceRow };
 }
 
-function decryptRecord(record, account, dob, accessCode) {
+function decryptRecord(record, account, dob) {
   const salt = base64UrlToBuffer(record.salt);
   const iv = base64UrlToBuffer(record.iv);
   const payload = base64UrlToBuffer(record.ciphertext);
   const ciphertext = payload.subarray(0, payload.length - 16);
   const tag = payload.subarray(payload.length - 16);
-  const key = crypto.pbkdf2Sync(account + dob + accessCode, salt, 200000, 32, "sha256");
+  const key = crypto.pbkdf2Sync(account + dob, salt, 200000, 32, "sha256");
   const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
   decipher.setAuthTag(tag);
   return JSON.parse(Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8"));

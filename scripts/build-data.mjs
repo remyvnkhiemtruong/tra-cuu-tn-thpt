@@ -9,12 +9,6 @@ const rootDir = path.resolve(__dirname, "..");
 const defaultSource = "C:\\Users\\Administrator\\Downloads\\Danh sach tai khoan thi sinh.xls";
 const sourcePath = path.resolve(process.argv[2] ?? defaultSource);
 const outputPath = path.join(rootDir, "data", "records.json");
-const localCodePath = path.join(rootDir, "local-access-code.txt");
-
-const accessCode = normalizeAccessCode(process.env.ACCESS_CODE || createAccessCode());
-if (!accessCode) {
-  throw new Error("ACCESS_CODE must not be empty.");
-}
 
 const raw = extractWorkbook(sourcePath);
 const rows = raw.records.map((record, index) => normalizeRecord(record, index + 7));
@@ -23,7 +17,7 @@ const records = {};
 const globalSalt = base64Url(crypto.randomBytes(24));
 
 for (const record of rows) {
-  const lookupSource = globalSalt + record.account + record.dob + accessCode;
+  const lookupSource = globalSalt + record.account + record.dob;
   const lookupHash = crypto.createHash("sha256").update(lookupSource, "utf8").digest("hex");
 
   if (seen.has(`${record.account}|${record.dob}`)) {
@@ -33,7 +27,7 @@ for (const record of rows) {
 
   const salt = crypto.randomBytes(16);
   const iv = crypto.randomBytes(12);
-  const keyMaterial = record.account + record.dob + accessCode;
+  const keyMaterial = record.account + record.dob;
   const key = crypto.pbkdf2Sync(keyMaterial, salt, 200000, 32, "sha256");
   const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
   const plaintext = Buffer.from(
@@ -56,12 +50,12 @@ for (const record of rows) {
 }
 
 const output = {
-  version: 1,
+  version: 2,
   school: raw.school || "THPT VÕ VĂN KIỆT",
   recordCount: rows.length,
   generatedAt: new Date().toISOString(),
   crypto: {
-    lookup: "SHA-256(globalSalt + account + dob + accessCode)",
+    lookup: "SHA-256(globalSalt + account + dob)",
     kdf: "PBKDF2-SHA256",
     iterations: 200000,
     cipher: "AES-GCM-256",
@@ -73,28 +67,11 @@ const output = {
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
 
-if (!process.env.ACCESS_CODE) {
-  await fs.writeFile(
-    localCodePath,
-    [
-      "MA TRUY CAP CHUNG - KHONG COMMIT FILE NAY",
-      "",
-      accessCode,
-      "",
-      "Phat rieng ma nay cho thi sinh. Neu can doi ma, chay lai:",
-      "node scripts/build-data.mjs",
-      "",
-    ].join("\n"),
-    "utf8"
-  );
-}
-
 console.log(
   JSON.stringify(
     {
       output: outputPath,
       recordCount: rows.length,
-      accessCodeSavedTo: process.env.ACCESS_CODE ? null : localCodePath,
     },
     null,
     2
@@ -170,16 +147,6 @@ function normalizeDob(value) {
     String(month).padStart(2, "0"),
     String(day).padStart(2, "0"),
   ].join("-");
-}
-
-function normalizeAccessCode(value) {
-  return String(value ?? "").normalize("NFC").trim();
-}
-
-function createAccessCode() {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const bytes = crypto.randomBytes(12);
-  return [...bytes].map((byte) => alphabet[byte % alphabet.length]).join("");
 }
 
 function base64Url(buffer) {
